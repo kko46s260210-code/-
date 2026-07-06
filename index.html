@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>할까말까 룰렛</title>
+    <style>
+        /* 1. 배경 & 화면 */
+        body {
+            background: repeating-linear-gradient(
+                90deg,
+                #222222,
+                #222222 50px, 
+                #333333 50px,
+                #333333 100px
+            );
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #fff;
+            text-shadow: 0 0 10px #d4af37, 0 0 20px #d4af37;
+            margin-bottom: 30px;
+        }
+
+        /* 2. 룰렛 뼈대 */
+        .roulette-container {
+            position: relative;
+            width: 90vw;
+            max-width: 350px;
+            aspect-ratio: 1 / 1;
+        }
+
+        /* 화살표 */
+        .arrow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 35px solid #d4af37;
+            z-index: 10;
+        }
+
+        /* 룰렛 원판 */
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 10px solid #d4af37;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+
+        /* SPIN 버튼 */
+        .spin-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(#ffe066, #d4af37);
+            border: 4px solid #fff;
+            color: #000;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            z-index: 5;
+        }
+
+        .spin-btn:active {
+            transform: translate(-50%, -45%) scale(0.95);
+        }
+
+        /* 결과창 */
+        #result-text {
+            margin-top: 40px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background: #8b0000;
+            padding: 10px 30px;
+            border-radius: 20px;
+            border: 2px solid #d4af37;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>할까? 말까?</h1>
+
+    <div class="roulette-container">
+        <div class="arrow"></div>
+        <canvas id="wheel" width="400" height="400"></canvas>
+        <button class="spin-btn" onclick="spinWheel()">SPIN</button>
+    </div>
+
+    <div id="result-text">결과</div>
+
+    <script>
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const resultText = document.getElementById("result-text");
+
+        const options = ["할까!", "말까!", "무조건 해!", "절대 안돼!", "내일 해!", "다시 생각해!"];
+        const colors = ["#8b0000", "#111111", "#8b0000", "#111111", "#8b0000", "#111111"];
+        
+        let currentDegree = 0;
+        let isSpinning = false;
+
+        // 룰렛 색칠하기
+        function drawRoulette() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = centerX;
+            const arc = (2 * Math.PI) / options.length;
+
+            for (let i = 0; i < options.length; i++) {
+                ctx.beginPath();
+                ctx.fillStyle = colors[i];
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, i * arc, (i + 1) * arc);
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 24px Arial";
+                ctx.textAlign = "center";
+                
+                const textAngle = (i * arc) + (arc / 2);
+                ctx.translate(
+                    centerX + Math.cos(textAngle) * (radius * 0.65),
+                    centerY + Math.sin(textAngle) * (radius * 0.65)
+                );
+                ctx.rotate(textAngle + Math.PI / 2);
+                ctx.fillText(options[i], 0, 0);
+                ctx.restore();
+            }
+        }
+
+        // 돌리기 기능
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            resultText.style.display = "none";
+
+            // 최소 5바퀴(1800도) 이상 랜덤으로 돌리기
+            const randomSpin = Math.floor(Math.random() * 360) + 1800;
+            currentDegree += randomSpin;
+            canvas.style.transform = `rotate(${currentDegree}deg)`;
+        }
+
+        // 멈췄을 때 결과 띄우기
+        canvas.addEventListener("transitionend", () => {
+            isSpinning = false;
+            
+            const actualDegree = currentDegree % 360;
+            const segmentAngle = 360 / options.length;
+            const offset = (270 - actualDegree + 360) % 360; 
+            const selectedIndex = Math.floor(offset / segmentAngle);
+
+            resultText.innerText = `결과: ${options[selectedIndex]}`;
+            resultText.style.display = "block";
+        });
+
+        // 페이지 열자마자 룰렛 그리기
+        drawRoulette();
+    </script>
+</body>
+</html>
