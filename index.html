@@ -3,66 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>할까말까 룰렛</title>
+    <title>UP 카지노 - VIP 에디션</title>
     <style>
         /* 1. 배경 & 화면 */
         body {
             background: repeating-linear-gradient(
                 90deg,
-                #222222,
-                #222222 50px, 
-                #333333 50px,
-                #333333 100px
+                #1a1a1a,
+                #1a1a1a 50px, 
+                #2a2a2a 50px,
+                #2a2a2a 100px
             );
             margin: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-family: 'Arial', sans-serif;
-            overflow: hidden;
+            color: white;
+            overflow-x: hidden;
         }
 
         h1 {
             color: #fff;
             text-shadow: 0 0 10px #d4af37, 0 0 20px #d4af37;
-            margin-bottom: 30px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 32px;
         }
 
-        /* 2. 룰렛 뼈대 */
+        /* 2. 지갑 및 베팅 컨트롤러 */
+        .dashboard {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #d4af37;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .my-money {
+            font-size: 26px;
+            color: #ffe066;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #d4af37;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        select, input[type="number"] {
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 2px solid #d4af37;
+            background: #111;
+            color: white;
+            font-weight: bold;
+            width: 150px;
+        }
+
+        /* 3. 룰렛 뼈대 */
         .roulette-container {
             position: relative;
             width: 90vw;
-            max-width: 350px;
+            max-width: 380px;
             aspect-ratio: 1 / 1;
+            margin-bottom: 30px;
         }
 
-        /* 화살표 */
         .arrow {
             position: absolute;
-            top: -20px;
+            top: -25px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
             border-left: 20px solid transparent;
             border-right: 20px solid transparent;
-            border-top: 35px solid #d4af37;
+            border-top: 40px solid #d4af37;
             z-index: 10;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
         }
 
-        /* 룰렛 원판 */
         #wheel {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             border: 10px solid #d4af37;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            transition: transform 6s cubic-bezier(0.1, 0, 0, 1); /* 더 리얼하게 돌게 6초로 늘림 */
         }
 
-        /* SPIN 버튼 */
         .spin-btn {
             position: absolute;
             top: 50%;
@@ -87,25 +134,49 @@
 
         /* 결과창 */
         #result-text {
-            margin-top: 40px;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: white;
-            background: #8b0000;
-            padding: 10px 30px;
-            border-radius: 20px;
-            border: 2px solid #d4af37;
+            background: #222;
+            padding: 15px 30px;
+            border-radius: 12px;
+            border: 2px solid #555;
+            margin-bottom: 30px;
             display: none;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <h1>할까? 말까?</h1>
+    <h1>💎 VIP 카지노 💎</h1>
+
+    <div class="dashboard">
+        <div class="my-money">내 지갑: <span id="current-up">1000</span> UP</div>
+        
+        <div class="input-group">
+            <label for="target-select">베팅할 칸:</label>
+            <select id="target-select">
+                <option value="0">1.5배 (확률 35%)</option>
+                <option value="1">2배 (확률 25%)</option>
+                <option value="2">3배 (확률 15%)</option>
+                <option value="3">5배 (확률 10%)</option>
+                <option value="4">10배 (확률 7%)</option>
+                <option value="5">20배 (확률 5%)</option>
+                <option value="6">50배 (확률 2%)</option>
+                <option value="7">100배! (확률 1%)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="bet-input">베팅 금액:</label>
+            <input type="number" id="bet-input" placeholder="금액 입력" min="10" step="10">
+        </div>
+    </div>
 
     <div class="roulette-container">
         <div class="arrow"></div>
-        <canvas id="wheel" width="400" height="400"></canvas>
+        <canvas id="wheel" width="500" height="500"></canvas>
         <button class="spin-btn" onclick="spinWheel()">SPIN</button>
     </div>
 
@@ -115,69 +186,162 @@
         const canvas = document.getElementById("wheel");
         const ctx = canvas.getContext("2d");
         const resultText = document.getElementById("result-text");
+        const currentUpDisplay = document.getElementById("current-up");
+        const betInput = document.getElementById("bet-input");
+        const targetSelect = document.getElementById("target-select");
 
-        const options = ["할까!", "말까!", "무조건 해!", "절대 안돼!", "내일 해!", "다시 생각해!"];
-        const colors = ["#8b0000", "#111111", "#8b0000", "#111111", "#8b0000", "#111111"];
+        // 룰렛 칸 8개 상세 설정 (확률 = 칸의 넓이)
+        // weight가 전체 100 중에 차지하는 퍼센트야. 합치면 딱 100!
+        const sections = [
+            { text: "1.5x", weight: 35, mult: 1.5, color: "#222222" }, // 35% 넓이
+            { text: "2x", weight: 25, mult: 2.0, color: "#8b0000" }, // 25% 넓이
+            { text: "3x", weight: 15, mult: 3.0, color: "#222222" }, // 15% 넓이
+            { text: "5x", weight: 10, mult: 5.0, color: "#8b0000" }, // 10% 넓이
+            { text: "10x", weight: 7, mult: 10.0, color: "#222222" }, // 7% 넓이
+            { text: "20x", weight: 5, mult: 20.0, color: "#8b0000" }, // 5% 넓이
+            { text: "50x", weight: 2, mult: 50.0, color: "#222222" }, // 2% 넓이
+            { text: "100x", weight: 1, mult: 100.0, color: "#d4af37" } // 1% 넓이 (초대박 잭팟, 황금색)
+        ];
         
+        let myUp = 1000; 
         let currentDegree = 0;
         let isSpinning = false;
+        let betAmount = 0;
+        let betTargetIndex = 0; // 내가 베팅한 칸의 번호
 
-        // 룰렛 색칠하기
+        // 1. 확률(weight)에 따라 크기가 다른 룰렛 그리기
         function drawRoulette() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             const radius = centerX;
-            const arc = (2 * Math.PI) / options.length;
+            
+            let startAngle = 0; // 시작 각도 (0부터 시작)
 
-            for (let i = 0; i < options.length; i++) {
+            for (let i = 0; i < sections.length; i++) {
+                // 이 칸이 차지할 각도 계산 (퍼센트 / 100 * 360도 = 라디안으로 변환)
+                const sliceAngle = (sections[i].weight / 100) * (2 * Math.PI);
+
+                // 피자 조각 그리기
                 ctx.beginPath();
-                ctx.fillStyle = colors[i];
+                ctx.fillStyle = sections[i].color;
                 ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, i * arc, (i + 1) * arc);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
                 ctx.fill();
 
+                // 테두리 선 그리기
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#d4af37";
+                ctx.stroke();
+
+                // 글씨 쓰기
                 ctx.save();
-                ctx.fillStyle = "#ffffff";
-                ctx.font = "bold 24px Arial";
+                // 폰트 크기 자동 조절 (칸이 좁으면 글씨도 작게)
+                const fontSize = sections[i].weight < 5 ? 16 : 26; 
+                ctx.fillStyle = sections[i].color === "#d4af37" ? "#000" : "#fff"; // 황금칸은 검은글씨
+                ctx.font = `bold ${fontSize}px Arial`;
                 ctx.textAlign = "center";
                 
-                const textAngle = (i * arc) + (arc / 2);
+                // 글씨를 칸의 정중앙 각도에 배치
+                const textAngle = startAngle + (sliceAngle / 2);
                 ctx.translate(
-                    centerX + Math.cos(textAngle) * (radius * 0.65),
-                    centerY + Math.sin(textAngle) * (radius * 0.65)
+                    centerX + Math.cos(textAngle) * (radius * 0.7),
+                    centerY + Math.sin(textAngle) * (radius * 0.7)
                 );
                 ctx.rotate(textAngle + Math.PI / 2);
-                ctx.fillText(options[i], 0, 0);
+                ctx.fillText(sections[i].text, 0, 0);
                 ctx.restore();
+
+                // 다음 칸 시작점을 위해 각도 더해주기
+                startAngle += sliceAngle;
             }
         }
 
-        // 돌리기 기능
+        // 2. 스핀 버튼 로직
         function spinWheel() {
             if (isSpinning) return;
-            isSpinning = true;
-            resultText.style.display = "none";
 
-            // 최소 5바퀴(1800도) 이상 랜덤으로 돌리기
-            const randomSpin = Math.floor(Math.random() * 360) + 1800;
+            betAmount = parseInt(betInput.value);
+            betTargetIndex = parseInt(targetSelect.value);
+
+            if (isNaN(betAmount) || betAmount <= 0) {
+                alert("베팅 금액을 정확히 입력하세요!");
+                return;
+            }
+            if (betAmount > myUp) {
+                alert("돈이 부족합니다! 대출은 안 됩니다 💸");
+                return;
+            }
+
+            isSpinning = true;
+            myUp -= betAmount;
+            currentUpDisplay.innerText = myUp;
+            resultText.style.display = "none";
+            
+            // 컨트롤러 잠금
+            betInput.disabled = true;
+            targetSelect.disabled = true;
+
+            // 랜덤 회전 (최소 6바퀴 이상)
+            const randomSpin = Math.floor(Math.random() * 360) + 2160; 
             currentDegree += randomSpin;
             canvas.style.transform = `rotate(${currentDegree}deg)`;
         }
 
-        // 멈췄을 때 결과 띄우기
+        // 3. 멈췄을 때 당첨 확인 및 돈 정산
         canvas.addEventListener("transitionend", () => {
             isSpinning = false;
+            betInput.disabled = false;
+            targetSelect.disabled = false;
             
-            const actualDegree = currentDegree % 360;
-            const segmentAngle = 360 / options.length;
-            const offset = (270 - actualDegree + 360) % 360; 
-            const selectedIndex = Math.floor(offset / segmentAngle);
+            // 화살표(12시 방향)가 어느 칸을 가리키는지 계산하는 복잡한 수학 공식
+            // Canvas에서 12시 방향은 270도 위치에 해당함
+            const landingDegree = (630 - (currentDegree % 360)) % 360; 
+            
+            let checkAngle = 0;
+            let resultIndex = -1;
 
-            resultText.innerText = `결과: ${options[selectedIndex]}`;
+            // 각 칸의 각도를 더해가면서 멈춘 각도가 어느 구간에 있는지 찾기
+            for(let i = 0; i < sections.length; i++) {
+                const sliceDegree = (sections[i].weight / 100) * 360;
+                if (landingDegree >= checkAngle && landingDegree < checkAngle + sliceDegree) {
+                    resultIndex = i;
+                    break;
+                }
+                checkAngle += sliceDegree;
+            }
+
+            const landedSection = sections[resultIndex];
+            const targetSection = sections[betTargetIndex];
+
+            // 결과 확인: 내가 고른 칸이랑 멈춘 칸이 똑같은지 비교!
+            if (resultIndex === betTargetIndex) {
+                // 당첨!
+                const winAmount = Math.floor(betAmount * landedSection.mult);
+                myUp += winAmount;
+                currentUpDisplay.innerText = myUp;
+
+                resultText.innerHTML = `🔥 당첨! 룰렛이 [${landedSection.text}]에 멈췄습니다.<br>축하합니다! ${winAmount} UP 획득!`;
+                resultText.style.background = "#d4af37";
+                resultText.style.color = "black";
+                resultText.style.borderColor = "white";
+            } else {
+                // 꽝!
+                resultText.innerHTML = `☠️ 꽝... 룰렛이 [${landedSection.text}]에 멈췄습니다.<br>당신이 건 곳: [${targetSection.text}]`;
+                resultText.style.background = "#8b0000";
+                resultText.style.color = "white";
+                resultText.style.borderColor = "black";
+            }
+            
             resultText.style.display = "block";
+
+            if (myUp <= 0) {
+                setTimeout(() => {
+                    alert("파산입니다... F5를 눌러 재시도하세요.");
+                }, 500);
+            }
         });
 
-        // 페이지 열자마자 룰렛 그리기
+        // 초기 화면 세팅
         drawRoulette();
     </script>
 </body>
